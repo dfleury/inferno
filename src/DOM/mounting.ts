@@ -210,7 +210,7 @@ export function mountStatefulComponentCallbacks(ref, instance, lifecycle) {
 			throwError();
 		}
 	}
-	if (!isNull(instance.componentDidMount)) {
+	if (!isUndefined(instance.componentDidMount)) {
 		lifecycle.addListener(() => {
 			instance.componentDidMount();
 		});

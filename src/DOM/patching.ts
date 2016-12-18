@@ -322,7 +322,10 @@ export function patchComponent(lastVNode, nextVNode, parentDom, lifecycle, conte
 				const lastState = instance.state;
 				const nextState = instance.state;
 				const lastProps = instance.props;
-				let childContext = instance.getChildContext();
+				let childContext;
+				if (!isUndefined(instance.getChildContext)) {
+					childContext = instance.getChildContext();
+				}
 
 				nextVNode.children = instance;
 				instance._isSVG = isSVG;
@@ -364,7 +367,9 @@ export function patchComponent(lastVNode, nextVNode, parentDom, lifecycle, conte
 					patch(lastInput, nextInput, parentDom, lifecycle, childContext, isSVG, isRecycling);
 					subLifecycle.fastUnmount = lifecycle.unmount;
 					lifecycle.fastUnmount = fastUnmount;
-					instance.componentDidUpdate(lastProps, lastState);
+					if (!isUndefined(instance.componentDidUpdate)) {
+						instance.componentDidUpdate(lastProps, lastState);
+					}
 					findDOMNodeEnabled && componentToDOMNodeMap.set(instance, nextInput.dom);
 				}
 				nextVNode.dom = nextInput.dom;

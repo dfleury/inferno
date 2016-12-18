@@ -13,7 +13,7 @@ import {
 	isStringOrNumber,
 	isTrue,
 	isFunction,
-	throwError,
+	throwError, isUndefined,
 } from '../shared';
 
 import {
@@ -57,7 +57,10 @@ function renderVNodeToString(vNode, context, firstChild) {
 
 		if (isClass) {
 			const instance = new type(props, context);
-			const childContext = instance.getChildContext();
+			let childContext;
+			if (!isUndefined(instance.getChildContext)) {
+				childContext = instance.getChildContext();
+			}
 
 			if (!isNullOrUndef(childContext)) {
 				context = Object.assign({}, context, childContext);

@@ -33,6 +33,8 @@ describe('Stateful Component updates', () => {
 				updatesAfromOutside = this.updateMe.bind(this);
 			}
 
+			componentWillUnmount() {}
+
 			updateMe() {
 				this.setState({
 					stuff: false

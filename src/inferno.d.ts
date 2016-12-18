@@ -14,7 +14,6 @@ declare module 'inferno' {
 
 declare module 'inferno-component' {
 	class Component<P, C> {
-		refs?: any;
 		state?: any;
 		props?: P;
 		context?: C;

@@ -15,11 +15,19 @@ declare module 'inferno' {
 declare module 'inferno-component' {
 	class Component<P, C> {
 		refs?: any;
-		state?: any;
+		state?: {};
 		props?: P;
 		context?: C;
 		_unmounted?: boolean;
 		constructor (props?: P, context?: C);
+		componentWillMount?(): void;
+		componentDidMount?(): void;
+		componentWillUnmount?(): void;
+		componentDidUpdate?(prevProps: P, prevState: any, prevContext?: any): void;
+		shouldComponentUpdate?(nextProps?: P, nextState?: any, context?: any): boolean;
+		componentWillReceiveProps?(nextProps?: P, context?: any): void;
+		componentWillUpdate?(nextProps?: P, nextState?: any, nextContext?: any): void;
+		getChildContext?(): void;
 		componentWillReact();
 		componentWillReceiveProps? (nextProps: P, nextContext: C): void;
 		forceUpdate (): void;

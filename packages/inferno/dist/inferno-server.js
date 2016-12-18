@@ -390,7 +390,10 @@ function renderVNodeToString(vNode, context, firstChild) {
         }
         if (isClass) {
             var instance = new type(props, context);
-            var childContext = instance.getChildContext();
+            var childContext;
+            if (!isUndefined(instance.getChildContext)) {
+                childContext = instance.getChildContext();
+            }
             if (!isNullOrUndef(childContext)) {
                 context = Object.assign({}, context, childContext);
             }
@@ -578,14 +581,17 @@ var RenderStream = (function (Readable$$1) {
             return this.renderNode(type(props), context, isRoot);
         }
         var instance = new type(props);
-        var childContext = instance.getChildContext();
+        var childContext;
+        if (!isUndefined(instance.getChildContext)) {
+            childContext = instance.getChildContext();
+        }
         if (!isNullOrUndef(childContext)) {
             context = Object.assign({}, context, childContext);
         }
         instance.context = context;
         // Block setting state - we should render only once, using latest state
         instance._pendingSetState = true;
-        return Promise.resolve(instance.componentWillMount()).then(function () {
+        return Promise.resolve(!isUndefined(instance.componentWillMount) && instance.componentWillMount()).then(function () {
             var node = instance.render();
             instance._pendingSetState = false;
             return this$1.renderNode(node, context, isRoot);

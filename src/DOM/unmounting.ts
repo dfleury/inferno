@@ -5,7 +5,7 @@ import {
 	isNullOrUndef,
 	isObject,
 	throwError,
-	isNull,
+	isNull, isUndefined,
 } from '../shared';
 import {
 	poolComponent,
@@ -48,7 +48,11 @@ export function unmountComponent(vNode, parentDom, lifecycle, canRecycle, shallo
 	if (!isRecycling) {
 		if (isStatefulComponent) {
 			instance._ignoreSetState = true;
-			instance.componentWillUnmount();
+
+			if (!isUndefined(instance.componentWillUnmount)) {
+				instance.componentWillUnmount();
+			}
+
 			if (ref && !isRecycling) {
 				ref(null);
 			}

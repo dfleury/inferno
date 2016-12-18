@@ -78,6 +78,7 @@ const injectStringRefs = (originalFunction) => {
 		const ref = props.ref;
 
 		if (typeof ref === 'string') {
+			currentComponent.refs = currentComponent.refs || {};
 			props.ref = function (val) {
 				if (this && this.refs) {
 					this.refs[ref] = val;

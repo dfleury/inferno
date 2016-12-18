@@ -5,7 +5,7 @@ import {
 	isInvalid,
 	isNullOrUndef,
 	throwError,
-	ERROR_MSG
+	ERROR_MSG, isNull, isUndefined
 } from '../shared';
 import {
 	Props,
@@ -35,7 +35,7 @@ function updateParentComponentVNodes(vNode: VNode, dom: Node) {
 	}
 }
 
-export interface ComponentLifecycle<P, S> {
+export interface ComponentLifecycle<P, C> {
 	componentDidMount?: () => void;
 	componentWillMount?(): void;
 	componentWillReceiveProps?(nextProps: P, nextContext: any): void;
@@ -153,7 +153,10 @@ function applyState<P, S>(component: Component<P, S>, force: boolean, callback: 
 				subLifecycle.listeners = [];
 			}
 			component._lifecycle = subLifecycle;
-			let childContext = component.getChildContext();
+			let childContext;
+			if (!isUndefined(component.getChildContext)) {
+				childContext = component.getChildContext()
+			}
 
 			if (!isNullOrUndef(childContext)) {
 				childContext = Object.assign({}, context, component._childContext, childContext);
@@ -163,7 +166,9 @@ function applyState<P, S>(component: Component<P, S>, force: boolean, callback: 
 
 			component._patch(lastInput, nextInput, parentDom, subLifecycle, childContext, component._isSVG, false);
 			subLifecycle.trigger();
-			component.componentDidUpdate(props, prevState);
+			if(!isUndefined(component.componentDidUpdate)) {
+				component.componentDidUpdate(props, prevState);
+			}
 		}
 		const dom = vNode.dom = nextInput.dom;
 		const componentToDOMNodeMap = component._componentToDOMNodeMap;
@@ -176,12 +181,11 @@ function applyState<P, S>(component: Component<P, S>, force: boolean, callback: 
 	}
 }
 
-export default class Component<P, S> implements ComponentLifecycle<P, S> {
+export default class Component<P, C> implements ComponentLifecycle<P, C> {
 	static defaultProps: any;
-	state: S = {} as S;
-	refs: any = {};
+	state = {};
 	props: P & Props;
-	context: any;
+	context: C;
 	_beforeRender: any;
 	_afterRender: any;
 	_processingSetState = false;
@@ -208,10 +212,6 @@ export default class Component<P, S> implements ComponentLifecycle<P, S> {
 
 		/** @type {object} */
 		this.context = context || {};
-
-		if (!this.componentDidMount) {
-			this.componentDidMount = null;
-		}
 	}
 
 	render(nextProps?: P, nextState?, nextContext?) {
@@ -240,34 +240,27 @@ export default class Component<P, S> implements ComponentLifecycle<P, S> {
 		}
 	}
 
-	componentWillMount() {
-	}
 
-	componentDidMount() {
-	}
+	componentWillMount:any;
 
-	componentWillUnmount() {
-	}
+	componentDidMount:any;
 
-	componentDidUpdate(prevProps: P, prevState: S, prevContext?: any) {
-	}
+	componentWillUnmount:any;
 
-	shouldComponentUpdate(nextProps?: P, nextState?: S, context?: any): boolean {
-		return true;
-	}
+	componentDidUpdate:any;
 
-	componentWillReceiveProps(nextProps?: P, context?: any) {
-	}
+	shouldComponentUpdate:any;
 
-	componentWillUpdate(nextProps?: P, nextState?: S, nextContext?: any) {
-	}
+	componentWillReceiveProps:any;
 
-	getChildContext() {
-	}
+	componentWillUpdate:any;
+
+	getChildContext:any;
+
 
 	_updateComponent(
-		prevState: S,
-		nextState: S,
+		prevState: any,
+		nextState: any,
 		prevProps: P & Props,
 		nextProps: P & Props,
 		context: any,
@@ -282,7 +275,10 @@ export default class Component<P, S> implements ComponentLifecycle<P, S> {
 		if ((prevProps !== nextProps || nextProps === EMPTY_OBJ) || prevState !== nextState || force) {
 			if (prevProps !== nextProps || nextProps === EMPTY_OBJ) {
 				this._blockRender = true;
-				this.componentWillReceiveProps(nextProps, context);
+				if (!isUndefined(this.componentWillReceiveProps)) {
+					this.componentWillReceiveProps(nextProps, context);
+				}
+
 				this._blockRender = false;
 				if (this._pendingSetState) {
 					nextState = Object.assign({}, nextState, this._pendingState);
@@ -290,20 +286,34 @@ export default class Component<P, S> implements ComponentLifecycle<P, S> {
 					this._pendingState = {};
 				}
 			}
-			const shouldUpdate = this.shouldComponentUpdate(nextProps, nextState, context);
+			let shouldUpdate;
+
+			if (!isUndefined(this.shouldComponentUpdate)) {
+				shouldUpdate = this.shouldComponentUpdate(nextProps, nextState, context);
+			} else {
+				shouldUpdate = true
+			}
 
 			if (shouldUpdate !== false || force) {
 				this._blockSetState = true;
-				this.componentWillUpdate(nextProps, nextState, context);
+				if (!isUndefined(this.componentWillUpdate)) {
+					this.componentWillUpdate(nextProps, nextState, context);
+				}
+
 				this._blockSetState = false;
 				this.props = nextProps;
 				const state = this.state = nextState;
 
 				this.context = context;
-				this._beforeRender && this._beforeRender();
+				if (!isUndefined(this._beforeRender)) {
+					this._beforeRender();
+				}
+
 				const render = this.render(nextProps, state, context);
 
-				this._afterRender && this._afterRender();
+				if (!isUndefined(this._afterRender)) {
+					this._afterRender();
+				}
 				return render;
 			}
 		}

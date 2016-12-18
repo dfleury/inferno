@@ -161,7 +161,10 @@ function applyState(component, force, callback) {
                 subLifecycle.listeners = [];
             }
             component._lifecycle = subLifecycle;
-            var childContext = component.getChildContext();
+            var childContext;
+            if (!isUndefined(component.getChildContext)) {
+                childContext = component.getChildContext();
+            }
             if (!isNullOrUndef(childContext)) {
                 childContext = Object.assign({}, context, component._childContext, childContext);
             }
@@ -170,7 +173,9 @@ function applyState(component, force, callback) {
             }
             component._patch(lastInput, nextInput, parentDom, subLifecycle, childContext, component._isSVG, false);
             subLifecycle.trigger();
-            component.componentDidUpdate(props, prevState);
+            if (!isUndefined(component.componentDidUpdate)) {
+                component.componentDidUpdate(props, prevState);
+            }
         }
         var dom = vNode.dom = nextInput.dom;
         var componentToDOMNodeMap = component._componentToDOMNodeMap;
@@ -183,7 +188,6 @@ function applyState(component, force, callback) {
 }
 var Component$1 = function Component$1(props, context) {
     this.state = {};
-    this.refs = {};
     this._processingSetState = false;
     this._blockRender = false;
     this._ignoreSetState = false;
@@ -205,9 +209,6 @@ var Component$1 = function Component$1(props, context) {
     this.props = props || inferno.EMPTY_OBJ;
     /** @type {object} */
     this.context = context || {};
-    if (!this.componentDidMount) {
-        this.componentDidMount = null;
-    }
 };
 Component$1.prototype.render = function render (nextProps, nextState, nextContext) {
 };
@@ -233,23 +234,6 @@ Component$1.prototype.setState = function setState (newState, callback) {
         throwError();
     }
 };
-Component$1.prototype.componentWillMount = function componentWillMount () {
-};
-Component$1.prototype.componentDidMount = function componentDidMount () {
-};
-Component$1.prototype.componentWillUnmount = function componentWillUnmount () {
-};
-Component$1.prototype.componentDidUpdate = function componentDidUpdate (prevProps, prevState, prevContext) {
-};
-Component$1.prototype.shouldComponentUpdate = function shouldComponentUpdate (nextProps, nextState, context) {
-    return true;
-};
-Component$1.prototype.componentWillReceiveProps = function componentWillReceiveProps (nextProps, context) {
-};
-Component$1.prototype.componentWillUpdate = function componentWillUpdate (nextProps, nextState, nextContext) {
-};
-Component$1.prototype.getChildContext = function getChildContext () {
-};
 Component$1.prototype._updateComponent = function _updateComponent (prevState, nextState, prevProps, nextProps, context, force) {
     if (this._unmounted === true) {
         if (process.env.NODE_ENV !== 'production') {
@@ -260,7 +244,9 @@ Component$1.prototype._updateComponent = function _updateComponent (prevState, n
     if ((prevProps !== nextProps || nextProps === inferno.EMPTY_OBJ) || prevState !== nextState || force) {
         if (prevProps !== nextProps || nextProps === inferno.EMPTY_OBJ) {
             this._blockRender = true;
-            this.componentWillReceiveProps(nextProps, context);
+            if (!isUndefined(this.componentWillReceiveProps)) {
+                this.componentWillReceiveProps(nextProps, context);
+            }
             this._blockRender = false;
             if (this._pendingSetState) {
                 nextState = Object.assign({}, nextState, this._pendingState);
@@ -268,17 +254,29 @@ Component$1.prototype._updateComponent = function _updateComponent (prevState, n
                 this._pendingState = {};
             }
         }
-        var shouldUpdate = this.shouldComponentUpdate(nextProps, nextState, context);
+        var shouldUpdate;
+        if (!isUndefined(this.shouldComponentUpdate)) {
+            shouldUpdate = this.shouldComponentUpdate(nextProps, nextState, context);
+        }
+        else {
+            shouldUpdate = true;
+        }
         if (shouldUpdate !== false || force) {
             this._blockSetState = true;
-            this.componentWillUpdate(nextProps, nextState, context);
+            if (!isUndefined(this.componentWillUpdate)) {
+                this.componentWillUpdate(nextProps, nextState, context);
+            }
             this._blockSetState = false;
             this.props = nextProps;
             var state = this.state = nextState;
             this.context = context;
-            this._beforeRender && this._beforeRender();
+            if (!isUndefined(this._beforeRender)) {
+                this._beforeRender();
+            }
             var render = this.render(nextProps, state, context);
-            this._afterRender && this._afterRender();
+            if (!isUndefined(this._afterRender)) {
+                this._afterRender();
+            }
             return render;
         }
     }

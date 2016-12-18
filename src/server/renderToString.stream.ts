@@ -6,7 +6,7 @@ import {
 	isArray,
 	isInvalid,
 	isNullOrUndef,
-	isStringOrNumber,
+	isStringOrNumber, isNull, isUndefined,
 } from '../shared';
 import {
 	renderAttributes,
@@ -69,7 +69,10 @@ export class RenderStream extends Readable {
 		}
 
 		const instance = new type(props);
-		const childContext = instance.getChildContext();
+		let childContext;
+		if (!isUndefined(instance.getChildContext)) {
+			childContext = instance.getChildContext();
+		}
 
 		if (!isNullOrUndef(childContext)) {
 			context = Object.assign({}, context, childContext);
@@ -78,7 +81,7 @@ export class RenderStream extends Readable {
 
 		// Block setting state - we should render only once, using latest state
 		instance._pendingSetState = true;
-		return Promise.resolve(instance.componentWillMount()).then(() => {
+		return Promise.resolve(!isUndefined(instance.componentWillMount) && instance.componentWillMount()).then(() => {
 			const node = instance.render();
 			instance._pendingSetState = false;
 			return this.renderNode(node, context, isRoot);

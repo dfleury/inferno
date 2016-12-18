@@ -767,7 +767,9 @@ function unmountComponent(vNode, parentDom, lifecycle, canRecycle, shallowUnmoun
     if (!isRecycling) {
         if (isStatefulComponent$$1) {
             instance._ignoreSetState = true;
-            instance.componentWillUnmount();
+            if (!isUndefined(instance.componentWillUnmount)) {
+                instance.componentWillUnmount();
+            }
             if (ref && !isRecycling) {
                 ref(null);
             }
@@ -1072,7 +1074,10 @@ function patchComponent(lastVNode, nextVNode, parentDom, lifecycle, context, isS
                 var lastState = instance.state;
                 var nextState = instance.state;
                 var lastProps = instance.props;
-                var childContext = instance.getChildContext();
+                var childContext;
+                if (!isUndefined(instance.getChildContext)) {
+                    childContext = instance.getChildContext();
+                }
                 nextVNode.children = instance;
                 instance._isSVG = isSVG;
                 if (!isNullOrUndef(childContext)) {
@@ -1116,7 +1121,9 @@ function patchComponent(lastVNode, nextVNode, parentDom, lifecycle, context, isS
                     patch(lastInput$1, nextInput$1, parentDom, lifecycle, childContext, isSVG, isRecycling);
                     subLifecycle.fastUnmount = lifecycle.unmount;
                     lifecycle.fastUnmount = fastUnmount;
-                    instance.componentDidUpdate(lastProps, lastState);
+                    if (!isUndefined(instance.componentDidUpdate)) {
+                        instance.componentDidUpdate(lastProps, lastState);
+                    }
                     findDOMNodeEnabled && componentToDOMNodeMap.set(instance, nextInput$1.dom);
                 }
                 nextVNode.dom = nextInput$1.dom;
@@ -1948,7 +1955,7 @@ function mountStatefulComponentCallbacks(ref, instance, lifecycle) {
             throwError();
         }
     }
-    if (!isNull(instance.componentDidMount)) {
+    if (!isUndefined(instance.componentDidMount)) {
         lifecycle.addListener(function () {
             instance.componentDidMount();
         });
@@ -1996,9 +2003,14 @@ function createStatefulComponentInstance(vNode, Component, props, context, isSVG
     if (findDOMNodeEnabled) {
         instance._componentToDOMNodeMap = componentToDOMNodeMap;
     }
-    var childContext = instance.getChildContext();
-    if (!isNullOrUndef(childContext)) {
-        instance._childContext = Object.assign({}, context, childContext);
+    if (!isUndefined(instance.getChildContext)) {
+        var childContext = instance.getChildContext();
+        if (!isNullOrUndef(childContext)) {
+            instance._childContext = Object.assign({}, context, childContext);
+        }
+        else {
+            instance._childContext = context;
+        }
     }
     else {
         instance._childContext = context;
@@ -2006,10 +2018,16 @@ function createStatefulComponentInstance(vNode, Component, props, context, isSVG
     instance._unmounted = false;
     instance._pendingSetState = true;
     instance._isSVG = isSVG;
-    instance.componentWillMount();
-    instance._beforeRender && instance._beforeRender();
+    if (!isUndefined(instance.componentWillMount)) {
+        instance.componentWillMount();
+    }
+    if (!isUndefined(instance._beforeRender)) {
+        instance._beforeRender();
+    }
     var input = instance.render(props, instance.state, context);
-    instance._afterRender && instance._afterRender();
+    if (!isUndefined(instance._afterRender)) {
+        instance._afterRender();
+    }
     if (isArray(input)) {
         if (process.env.NODE_ENV !== 'production') {
             throwError('a valid Inferno VNode (or null) must be returned from a component render. You may have returned an array or an invalid object.');

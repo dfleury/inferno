@@ -8,7 +8,7 @@ import {
 	isNullOrUndef,
 	isUndefined,
 	throwError,
-	EMPTY_OBJ
+	EMPTY_OBJ, isNull
 } from '../shared';
 
 import cloneVNode from '../factories/cloneVNode';
@@ -35,21 +35,35 @@ export function createStatefulComponentInstance(vNode, Component, props, context
 	if (findDOMNodeEnabled) {
 		instance._componentToDOMNodeMap = componentToDOMNodeMap;
 	}
-	const childContext = instance.getChildContext();
+	if (!isUndefined(instance.getChildContext)) {
+		const childContext = instance.getChildContext();
 
-	if (!isNullOrUndef(childContext)) {
-		instance._childContext = Object.assign({}, context, childContext);
+		if (!isNullOrUndef(childContext)) {
+			instance._childContext = Object.assign({}, context, childContext);
+		} else {
+			instance._childContext = context;
+		}
 	} else {
 		instance._childContext = context;
 	}
+
 	instance._unmounted = false;
 	instance._pendingSetState = true;
 	instance._isSVG = isSVG;
-	instance.componentWillMount();
-	instance._beforeRender && instance._beforeRender();
+	if (!isUndefined(instance.componentWillMount)) {
+		instance.componentWillMount();
+	}
+
+	if (!isUndefined(instance._beforeRender)) {
+		instance._beforeRender()
+	}
+
 	let input = instance.render(props, instance.state, context);
 
-	instance._afterRender && instance._afterRender();
+	if (!isUndefined(instance._afterRender)) {
+		instance._afterRender();
+	}
+
 	if (isArray(input)) {
 		if (process.env.NODE_ENV !== 'production') {
 			throwError('a valid Inferno VNode (or null) must be returned from a component render. You may have returned an array or an invalid object.');

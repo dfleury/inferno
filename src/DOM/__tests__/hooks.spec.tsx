@@ -24,6 +24,8 @@ describe('Component lifecycle (JSX)', () => {
 			let updater = null;
 
 			class A extends Component<any, any> {
+				componentWillUnmount() {}
+
 				constructor(props) {
 					super(props);
 
@@ -57,6 +59,8 @@ describe('Component lifecycle (JSX)', () => {
 			}
 
 			class B extends Component<any, any> {
+				componentWillUnmount() {}
+
 				render() {
 					return (
 						<div>
@@ -67,6 +71,8 @@ describe('Component lifecycle (JSX)', () => {
 			}
 
 			class C extends Component<any, any> {
+				componentWillUnmount() {}
+
 				render() {
 					return (
 						<div>
@@ -77,6 +83,8 @@ describe('Component lifecycle (JSX)', () => {
 			}
 
 			class D extends Component<any, any> {
+				componentWillUnmount() {}
+
 				render() {
 					return (
 						<div>
@@ -119,6 +127,8 @@ describe('Component lifecycle (JSX)', () => {
 			let updater = null;
 
 			class A extends Component<any, any> {
+				componentWillUnmount() {}
+
 				constructor(props) {
 					super(props);
 
@@ -152,18 +162,24 @@ describe('Component lifecycle (JSX)', () => {
 			}
 
 			class B extends Component<any, any> {
+				componentWillUnmount() {}
+
 				render() {
 					return (<C />);
 				}
 			}
 
 			class C extends Component<any, any> {
+				componentWillUnmount() {}
+
 				render() {
 					return (<D />);
 				}
 			}
 
 			class D extends Component<any, any> {
+				componentWillUnmount() {}
+
 				render() {
 					return (
 						<div>
@@ -204,18 +220,24 @@ describe('Component lifecycle (JSX)', () => {
 
 		it('Should trigger unMount once for direct nested children', () => {
 			class B extends Component<any, any> {
+				componentWillUnmount() {}
+
 				render() {
 					return <div>B</div>;
 				}
 			}
 
 			class C extends Component<any, any> {
+				componentWillUnmount() {}
+
 				render() {
 					return <div>C</div>;
 				}
 			}
 
 			class D extends Component<any, any> {
+				componentWillUnmount() {}
+
 				render() {
 					return <div>D</div>;
 				}
@@ -256,6 +278,8 @@ describe('Component lifecycle (JSX)', () => {
 			let updater = null;
 
 			class B extends Component<any, any> {
+				componentWillUnmount() {}
+
 				render() {
 					return (
 						<div>
@@ -267,18 +291,24 @@ describe('Component lifecycle (JSX)', () => {
 			}
 
 			class B1 extends Component<any, any> {
+				componentWillUnmount() {}
+
 				render() {
 					return <p>B1</p>;
 				}
 			}
 
 			class B2 extends Component<any, any> {
+				componentWillUnmount() {}
+
 				render() {
 					return <p>B2</p>;
 				}
 			}
 
 			class C extends Component<any, any> {
+				componentWillUnmount() {}
+
 				constructor(props) {
 					super(props);
 
