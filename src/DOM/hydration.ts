@@ -67,12 +67,12 @@ function hydrateComponent(vNode, dom, lifecycle, context, isSVG, isClass) {
 		const _isSVG = dom.namespaceURI === svgNS;
 		const defaultProps = type.defaultProps;
 
-		lifecycle.fastUnmount = false;
+		// lifecycle.fastUnmount = false;
 		if (!isUndefined(defaultProps)) {
 			copyPropsTo(defaultProps, props);
 			vNode.props = props;
 		}
-		const instance = createStatefulComponentInstance(vNode, type, props, context, _isSVG, devToolsStatus);
+		const instance = createStatefulComponentInstance(vNode, type, props, context, _isSVG, devToolsStatus, lifecycle);
 		const input = instance._lastInput;
 		const fastUnmount = lifecycle.fastUnmount;
 

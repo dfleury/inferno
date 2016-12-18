@@ -263,7 +263,7 @@ function patchChildren(lastFlags, nextFlags, lastChildren, nextChildren, dom, li
 	}
 }
 
-export function patchComponent(lastVNode, nextVNode, parentDom, lifecycle, context, isSVG, isClass, isRecycling: boolean) {
+export function patchComponent(lastVNode, nextVNode, parentDom, lifecycle: Lifecycle, context, isSVG, isClass, isRecycling: boolean) {
 	const lastType = lastVNode.type;
 	const nextType = nextVNode.type;
 	const nextProps = nextVNode.props || EMPTY_OBJ;
@@ -318,7 +318,7 @@ export function patchComponent(lastVNode, nextVNode, parentDom, lifecycle, conte
 				if (instance._devToolsStatus.connected && !instance._devToolsId) {
 					componentIdMap.set(instance._devToolsId = getIncrementalId(), instance);
 				}
-				lifecycle.fastUnmount = false;
+				// lifecycle.fastUnmount = false;
 				const lastState = instance.state;
 				const nextState = instance.state;
 				const lastProps = instance.props;
@@ -365,7 +365,7 @@ export function patchComponent(lastVNode, nextVNode, parentDom, lifecycle, conte
 
 					lifecycle.fastUnmount = subLifecycle.fastUnmount;
 					patch(lastInput, nextInput, parentDom, lifecycle, childContext, isSVG, isRecycling);
-					subLifecycle.fastUnmount = lifecycle.unmount;
+					subLifecycle.fastUnmount = lifecycle.fastUnmount;
 					lifecycle.fastUnmount = fastUnmount;
 					if (!isUndefined(instance.componentDidUpdate)) {
 						instance.componentDidUpdate(lastProps, lastState);

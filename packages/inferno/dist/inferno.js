@@ -1070,7 +1070,7 @@ function patchComponent(lastVNode, nextVNode, parentDom, lifecycle, context, isS
                 if (instance._devToolsStatus.connected && !instance._devToolsId) {
                     componentIdMap.set(instance._devToolsId = getIncrementalId(), instance);
                 }
-                lifecycle.fastUnmount = false;
+                // lifecycle.fastUnmount = false;
                 var lastState = instance.state;
                 var nextState = instance.state;
                 var lastProps = instance.props;
@@ -1119,7 +1119,7 @@ function patchComponent(lastVNode, nextVNode, parentDom, lifecycle, context, isS
                     var subLifecycle = instance._lifecycle;
                     lifecycle.fastUnmount = subLifecycle.fastUnmount;
                     patch(lastInput$1, nextInput$1, parentDom, lifecycle, childContext, isSVG, isRecycling);
-                    subLifecycle.fastUnmount = lifecycle.unmount;
+                    subLifecycle.fastUnmount = lifecycle.fastUnmount;
                     lifecycle.fastUnmount = fastUnmount;
                     if (!isUndefined(instance.componentDidUpdate)) {
                         instance.componentDidUpdate(lastProps, lastState);
@@ -1911,8 +1911,8 @@ function mountComponent(vNode, parentDom, lifecycle, context, isSVG, isClass) {
         vNode.props = props;
     }
     if (isClass) {
-        lifecycle.fastUnmount = false;
-        var instance = createStatefulComponentInstance(vNode, type, props, context, isSVG, devToolsStatus);
+        // lifecycle.fastUnmount = false;
+        var instance = createStatefulComponentInstance(vNode, type, props, context, isSVG, devToolsStatus, lifecycle);
         var input = instance._lastInput;
         var fastUnmount = lifecycle.fastUnmount;
         // we store the fastUnmount value, but we set it back to true on the lifecycle
@@ -1946,6 +1946,7 @@ function mountComponent(vNode, parentDom, lifecycle, context, isSVG, isClass) {
 function mountStatefulComponentCallbacks(ref, instance, lifecycle) {
     if (ref) {
         if (isFunction(ref)) {
+            lifecycle.fastUnmount = false;
             ref(instance);
         }
         else {
@@ -1956,6 +1957,7 @@ function mountStatefulComponentCallbacks(ref, instance, lifecycle) {
         }
     }
     if (!isUndefined(instance.componentDidMount)) {
+        lifecycle.fastUnmount = false;
         lifecycle.addListener(function () {
             instance.componentDidMount();
         });
@@ -1989,7 +1991,7 @@ function mountRef(dom, value, lifecycle) {
     }
 }
 
-function createStatefulComponentInstance(vNode, Component, props, context, isSVG, devToolsStatus) {
+function createStatefulComponentInstance(vNode, Component, props, context, isSVG, devToolsStatus, lifecycle) {
     if (isUndefined(context)) {
         context = {};
     }
@@ -2019,6 +2021,7 @@ function createStatefulComponentInstance(vNode, Component, props, context, isSVG
     instance._pendingSetState = true;
     instance._isSVG = isSVG;
     if (!isUndefined(instance.componentWillMount)) {
+        lifecycle.fastUnmount = false;
         instance.componentWillMount();
     }
     if (!isUndefined(instance._beforeRender)) {
@@ -2188,12 +2191,12 @@ function hydrateComponent(vNode, dom, lifecycle, context, isSVG, isClass) {
     if (isClass) {
         var _isSVG = dom.namespaceURI === svgNS;
         var defaultProps = type.defaultProps;
-        lifecycle.fastUnmount = false;
+        // lifecycle.fastUnmount = false;
         if (!isUndefined(defaultProps)) {
             copyPropsTo(defaultProps, props);
             vNode.props = props;
         }
-        var instance = createStatefulComponentInstance(vNode, type, props, context, _isSVG, devToolsStatus);
+        var instance = createStatefulComponentInstance(vNode, type, props, context, _isSVG, devToolsStatus, lifecycle);
         var input = instance._lastInput;
         var fastUnmount = lifecycle.fastUnmount;
         // we store the fastUnmount value, but we set it back to true on the lifecycle

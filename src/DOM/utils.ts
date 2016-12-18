@@ -8,7 +8,7 @@ import {
 	isNullOrUndef,
 	isUndefined,
 	throwError,
-	EMPTY_OBJ, isNull
+	EMPTY_OBJ
 } from '../shared';
 
 import cloneVNode from '../factories/cloneVNode';
@@ -19,8 +19,9 @@ import { svgNS } from './constants';
 import {
 	unmount,
 } from './unmounting';
+import Lifecycle from "./lifecycle";
 
-export function createStatefulComponentInstance(vNode, Component, props, context, isSVG, devToolsStatus) {
+export function createStatefulComponentInstance(vNode, Component, props, context, isSVG, devToolsStatus, lifecycle: Lifecycle) {
 	if (isUndefined(context)) {
 		context = {};
 	}
@@ -51,6 +52,7 @@ export function createStatefulComponentInstance(vNode, Component, props, context
 	instance._pendingSetState = true;
 	instance._isSVG = isSVG;
 	if (!isUndefined(instance.componentWillMount)) {
+		lifecycle.fastUnmount = false;
 		instance.componentWillMount();
 	}
 

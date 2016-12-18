@@ -164,8 +164,8 @@ export function mountComponent(vNode, parentDom, lifecycle, context, isSVG, isCl
 		vNode.props = props;
 	}
 	if (isClass) {
-		lifecycle.fastUnmount = false;
-		const instance = createStatefulComponentInstance(vNode, type, props, context, isSVG, devToolsStatus);
+		// lifecycle.fastUnmount = false;
+		const instance = createStatefulComponentInstance(vNode, type, props, context, isSVG, devToolsStatus, lifecycle);
 		const input = instance._lastInput;
 		const fastUnmount = lifecycle.fastUnmount;
 
@@ -202,6 +202,7 @@ export function mountComponent(vNode, parentDom, lifecycle, context, isSVG, isCl
 export function mountStatefulComponentCallbacks(ref, instance, lifecycle) {
 	if (ref) {
 		if (isFunction(ref)) {
+			lifecycle.fastUnmount = false;
 			ref(instance);
 		} else {
 			if (process.env.NODE_ENV !== 'production') {
@@ -211,6 +212,7 @@ export function mountStatefulComponentCallbacks(ref, instance, lifecycle) {
 		}
 	}
 	if (!isUndefined(instance.componentDidMount)) {
+		lifecycle.fastUnmount = false;
 		lifecycle.addListener(() => {
 			instance.componentDidMount();
 		});
